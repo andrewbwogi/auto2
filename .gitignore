@@ -10,3 +10,7 @@ spec/main.rkt~
 spec/parser-tester.rkt~
 spec/parser.rkt~
 spec/tokenizer.rkt~
+sys/compiled/
+sys/parser-tester.rkt~
+sys/parser.rkt~
+sys/tokenizer.rkt~
