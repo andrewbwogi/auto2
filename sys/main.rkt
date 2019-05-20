@@ -7,44 +7,36 @@
 (define (read-syntax path port)
   (define parse-tree (parse path (make-tokenizer port)))
   (strip-bindings
-   #`(module spec-mod spec/main
+   #`(module sys-mod sys/main
        #,parse-tree)))
 
-(define-macro (spec-program LINE ...)
+(define-macro (sys-program LINE ...)
   #'(void LINE ...))
 
-(define-macro (spec-line A B C)
-  #'(void A C (make-transition A B C)))
+(define-macro (sys-line NODEOREDGE)
+  #'(void NODEOREDGE))
 
-(define-macro (make-transition A B C)
-  #'(begin
-      (set-dfa-struct-transitions! dfa (cons `(,(string->symbol (second 'A))
-                                               ,(string->symbol (second 'C))
-                                               ,(string->symbol (second 'B)))
-                                             (dfa-struct-transitions dfa)))
-      (set-dfa-struct-alphabet! dfa (cons (string->symbol (second 'B))
-                                         (dfa-struct-alphabet dfa)))))
+(define (node ignore id method type)
+  (if (eq? type "entry")
+      (set-cfg-struct-entry-nodes! cfg (cons (node-struct id method)
+                                             (cfg-struct-entry-nodes cfg)))
+      (set-cfg-struct-return-nodes! cfg (cons (node-struct id method)
+                                              (cfg-struct-return-nodes cfg)))))
 
-(define-macro (spec-start S)
-  #'(begin
-       (set-dfa-struct-start! dfa (string->symbol S))
-       (set-dfa-struct-states! dfa (cons (string->symbol S)
-                                         (dfa-struct-states dfa)))))
+(define (edge ignore id1 id2 type)
+  (if (eq? type "eps")
+      (set-cfg-struct-transfer-edges! cfg (cons (transfer-edge-struct id1 id2)
+                                                (cfg-struct-transfer-edges cfg)))
+      (set-cfg-struct-call-edges! cfg (cons (call-edge-struct id1 id2 type)
+                                            (cfg-struct-call-edges cfg)))))
 
-(define-macro (spec-state S)
-  #'(set-dfa-struct-states! dfa (cons (string->symbol S)
-                                      (dfa-struct-states dfa))))
+(struct cfg-struct (entry-nodes return-nodes transfer-edges call-edges) #:mutable #:transparent)
+(struct node-struct (node method) #:mutable #:transparent)
+(struct call-edge-struct (node node2 name) #:mutable #:transparent)
+(struct transfer-edge-struct (node1 node2) #:mutable #:transparent)
 
-(define-macro (spec-end S)
-  #'(set-dfa-struct-end! dfa (cons (string->symbol S) (dfa-struct-end dfa))))
+(define cfg (cfg-struct '() '() '() '()))
 
-(struct dfa-struct (alphabet states transitions start end) #:mutable #:transparent)
-(define dfa (dfa-struct '() '() '() '() '()))
+(define (get-cfg) cfg)
 
-(define (get-dfa) (dfa-struct (remove-duplicates (dfa-struct-alphabet dfa))
-                              (remove-duplicates (dfa-struct-states dfa))
-                              (remove-duplicates (dfa-struct-transitions dfa))
-                              (dfa-struct-start dfa)
-                              (remove-duplicates (dfa-struct-end dfa))))
-
-(provide #%module-begin get-dfa spec-end spec-state spec-start spec-line spec-program)
+(provide #%module-begin get-cfg edge node sys-line sys-program)
