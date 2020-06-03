@@ -36,7 +36,10 @@
                                       (dfa-struct-states dfa))))
 
 (define-macro (spec-end S)
-  #'(set-dfa-struct-end! dfa (cons (string->symbol S) (dfa-struct-end dfa))))
+  #'(begin
+      (set-dfa-struct-end! dfa (cons (string->symbol S) (dfa-struct-end dfa)))
+      (set-dfa-struct-states! dfa (cons (string->symbol S)
+                                         (dfa-struct-states dfa)))))
 
 (struct dfa-struct (alphabet states transitions start end) #:mutable #:transparent)
 (define dfa (dfa-struct '() '() '() '() '()))
@@ -47,4 +50,4 @@
                               (dfa-struct-start dfa)
                               (remove-duplicates (dfa-struct-end dfa))))
 
-(provide #%module-begin get-dfa spec-end spec-state spec-start spec-line spec-program)
+(provide #%module-begin get-dfa spec-end spec-state spec-start spec-line spec-program (struct-out dfa-struct))

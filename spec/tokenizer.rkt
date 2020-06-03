@@ -7,6 +7,8 @@
       (lexer
        [(from/to "=>(" ")")
         (token 'START-TOK (trim-ends "=>(" lexeme ")"))]
+       [(from/to "=>[" "]")
+        (token 'START-TOK (trim-ends "=>[" lexeme "]"))]
        [(from/to "(" ")")
         (token 'END-TOK (trim-ends "(" lexeme ")"))]
        [(from/to "[" "]")

@@ -12,7 +12,7 @@
        [(:or "\n" " ") (next-token)]
        ["edge"
         (token 'EDGE-TOK "edge")]
-       [(:+ (:or alphabetic numeric))
+       [(:+ (:or alphabetic numeric "-" "_"))
         (token 'VAL-TOK lexeme)]
        [(:or "\n" " ") (next-token)]
        ))
