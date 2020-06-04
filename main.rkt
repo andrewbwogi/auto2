@@ -55,6 +55,8 @@
                 (box 1) 0)))
 
 ; production rule 2b
+; if DFA is underspecified and does not say how a method call should
+; be interpreted, the method call is treated as a silent call
 (define (p2b dfa-in cfg-in)
   (define ext (for/list ([t (cfg-struct-methods cfg-in)]
                          #:when (not (member t (dfa-struct-alphabet dfa-in))))
